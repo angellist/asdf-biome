@@ -2,10 +2,10 @@
 
 set -euo pipefail
 
-# TODO: Ensure this is the correct GitHub homepage where releases can be downloaded for biome.
-GH_REPO="https://github.com/angellist/asdf-biome"
+GH_REPO="https://github.com/biomejs/biome"
 TOOL_NAME="biome"
 TOOL_TEST="biome --version"
+CLEAN_RELEASE_REGEX='s/^cli\/v//'
 
 fail() {
 	echo -e "asdf-$TOOL_NAME: $*"
@@ -27,13 +27,32 @@ sort_versions() {
 list_github_tags() {
 	git ls-remote --tags --refs "$GH_REPO" |
 		grep -o 'refs/tags/.*' | cut -d/ -f3- |
-		sed 's/^v//' # NOTE: You might want to adapt this sed to remove non-version strings from tags
+		grep -o "cli/v[0-9]\+\.[0-9]\+\.[0-9]\+$" | # Match semantic versioning tags
+		sed $CLEAN_RELEASE_REGEX
 }
 
 list_all_versions() {
-	# TODO: Adapt this. By default we simply list the tag names from GitHub releases.
-	# Change this function if biome has other means of determining installable versions.
 	list_github_tags
+}
+
+binary_suffix() {
+	local suffix
+
+	if [[ "$OSTYPE" == "darwin"* ]]; then
+		suffix="-darwin-arm64"
+	elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+		suffix="-linux-x64"
+	else
+		fail "Unsupported OS: $OSTYPE"
+	fi
+
+	echo "$suffix"
+}
+
+release_file() {
+	local download_path="$1"
+
+	echo "$download_path/$TOOL_NAME$(binary_suffix)"
 }
 
 download_release() {
@@ -41,8 +60,7 @@ download_release() {
 	version="$1"
 	filename="$2"
 
-	# TODO: Adapt the release URL convention for biome
-	url="$GH_REPO/archive/v${version}.tar.gz"
+	url="$GH_REPO/releases/download/cli/v${version}/biome$(binary_suffix)"
 
 	echo "* Downloading $TOOL_NAME release $version..."
 	curl "${curl_opts[@]}" -o "$filename" -C - "$url" || fail "Could not download $url"
@@ -53,15 +71,12 @@ install_version() {
 	local version="$2"
 	local install_path="${3%/bin}/bin"
 
-	if [ "$install_type" != "version" ]; then
-		fail "asdf-$TOOL_NAME supports release installs only"
-	fi
-
 	(
 		mkdir -p "$install_path"
-		cp -r "$ASDF_DOWNLOAD_PATH"/* "$install_path"
+		mv $(release_file $ASDF_DOWNLOAD_PATH) "$install_path/$TOOL_NAME"
+		chmod +x "$install_path/$TOOL_NAME"
 
-		# TODO: Assert biome executable exists.
+		# Assert biome executable exists.
 		local tool_cmd
 		tool_cmd="$(echo "$TOOL_TEST" | cut -d' ' -f1)"
 		test -x "$install_path/$tool_cmd" || fail "Expected $install_path/$tool_cmd to be executable."
