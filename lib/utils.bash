@@ -2,10 +2,10 @@
 
 set -euo pipefail
 
-# TODO: Ensure this is the correct GitHub homepage where releases can be downloaded for biome.
-GH_REPO="https://github.com/angellist/asdf-biome"
+GH_REPO="https://github.com/biomejs/biome"
 TOOL_NAME="biome"
 TOOL_TEST="biome --version"
+VALID_FULL_RELEASE_VERSION_REGEX="cli/v[0-9]\+\.[0-9]\+\.[0-9]\+$"
 
 fail() {
 	echo -e "asdf-$TOOL_NAME: $*"
@@ -27,13 +27,26 @@ sort_versions() {
 list_github_tags() {
 	git ls-remote --tags --refs "$GH_REPO" |
 		grep -o 'refs/tags/.*' | cut -d/ -f3- |
-		sed 's/^v//' # NOTE: You might want to adapt this sed to remove non-version strings from tags
+		grep -o VALID_FULL_RELEASE_VERSION_REGEX | # Match semantic versioning tags
+		sed 's/^cli\/v//' # NOTE: You might want to adapt this sed to remove non-version strings from tags
 }
 
 list_all_versions() {
-	# TODO: Adapt this. By default we simply list the tag names from GitHub releases.
-	# Change this function if biome has other means of determining installable versions.
 	list_github_tags
+}
+
+binary_suffix() {
+	local suffix
+
+	if [[ "$OSTYPE" == "darwin"* ]]; then
+		suffix="-darwin-arm64"
+	elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+		suffix="-linux-x64"
+	else
+		fail "Unsupported OS: $OSTYPE"
+	fi
+
+	echo "$suffix"
 }
 
 download_release() {
@@ -41,8 +54,11 @@ download_release() {
 	version="$1"
 	filename="$2"
 
-	# TODO: Adapt the release URL convention for biome
-	url="$GH_REPO/archive/v${version}.tar.gz"
+	if [[ "$version" =~ VALID_FULL_RELEASE_VERSION_REGEX ]]; then
+		version="$(sed 's/^cli\/v//')"
+	fi
+
+	url="$GH_REPO/releases/download/cli/${version}/biome$(binary_suffix)"
 
 	echo "* Downloading $TOOL_NAME release $version..."
 	curl "${curl_opts[@]}" -o "$filename" -C - "$url" || fail "Could not download $url"
@@ -61,7 +77,7 @@ install_version() {
 		mkdir -p "$install_path"
 		cp -r "$ASDF_DOWNLOAD_PATH"/* "$install_path"
 
-		# TODO: Assert biome executable exists.
+		# Assert biome executable exists.
 		local tool_cmd
 		tool_cmd="$(echo "$TOOL_TEST" | cut -d' ' -f1)"
 		test -x "$install_path/$tool_cmd" || fail "Expected $install_path/$tool_cmd to be executable."

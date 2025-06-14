@@ -1,8 +1,8 @@
 <div align="center">
 
-# asdf-biome [![Build](https://github.com/stathis-alexander/asdf-biome/actions/workflows/build.yml/badge.svg)](https://github.com/stathis-alexander/asdf-biome/actions/workflows/build.yml) [![Lint](https://github.com/stathis-alexander/asdf-biome/actions/workflows/lint.yml/badge.svg)](https://github.com/stathis-alexander/asdf-biome/actions/workflows/lint.yml)
+# asdf-biome [![Build](https://github.com/angellist/asdf-biome/actions/workflows/build.yml/badge.svg)](https://github.com/angellist/asdf-biome/actions/workflows/build.yml) [![Lint](https://github.com/angellist/asdf-biome/actions/workflows/lint.yml/badge.svg)](https://github.com/angellist/asdf-biome/actions/workflows/lint.yml)
 
-[biome](https://github.com/angellist/asdf-biome) plugin for the [asdf version manager](https://asdf-vm.com).
+[biome](https://github.com/biomejs/biome) plugin for the [asdf version manager](https://asdf-vm.com).
 
 </div>
 
@@ -15,10 +15,7 @@
 
 # Dependencies
 
-**TODO: adapt this section**
-
-- `bash`, `curl`, `tar`, and [POSIX utilities](https://pubs.opengroup.org/onlinepubs/9699919799/idx/utilities.html).
-- `SOME_ENV_VAR`: set this environment variable in your shell config to load the correct version of tool x.
+- `bash`, `curl`, and [POSIX utilities](https://pubs.opengroup.org/onlinepubs/9699919799/idx/utilities.html).
 
 # Install
 
@@ -27,7 +24,7 @@ Plugin:
 ```shell
 asdf plugin add biome
 # or
-asdf plugin add biome https://github.com/stathis-alexander/asdf-biome.git
+asdf plugin add biome https://github.com/angellist/asdf-biome.git
 ```
 
 biome:
@@ -53,7 +50,7 @@ install & manage versions.
 
 Contributions of any kind welcome! See the [contributing guide](contributing.md).
 
-[Thanks goes to these contributors](https://github.com/stathis-alexander/asdf-biome/graphs/contributors)!
+[Thanks goes to these contributors](https://github.com/angellist/asdf-biome/graphs/contributors)!
 
 # License
 
