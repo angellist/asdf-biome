@@ -73,9 +73,6 @@ download_release() {
 	version="$1"
 	filename="$2"
 
-	echo "$version"
-	echo "$filename"
-
 	if [[ $version =~ ^2 ]]; then
 		major_prefix="$MAJOR_2_PREFIX"
 	elif [[ $version =~ ^1 ]]; then
