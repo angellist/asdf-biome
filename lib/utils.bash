@@ -76,9 +76,9 @@ download_release() {
 	echo "$version"
 	echo "$filename"
 
-	if [[ "$version" =~ "^2" ]]; then
+	if [[ $version =~ "^2" ]]; then
 		major_prefix="$MAJOR_2_PREFIX"
-	elif [[ "$version" =~ "^1" ]]; then
+	elif [[ $version =~ "^1" ]]; then
 		major_prefix="$MAJOR_1_PREFIX"
 	else
 		fail "Unsupported version: $version"
