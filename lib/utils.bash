@@ -20,8 +20,6 @@ MAJOR_2_PREFIX='@biomejs/biome@'
 RELEASE_REGEX="^\($MAJOR_1_PREFIX\|$MAJOR_2_PREFIX\)[0-9]\+\.[0-9]\+\.[0-9]\+$"
 REPLACE_RELEASE_REGEX="s/^($(escape_slashes $MAJOR_1_PREFIX)|$(escape_slashes $MAJOR_2_PREFIX))//"
 
-echo $MAJOR_1_PREFIX | sed 's/\//\\\//'
-
 fail() {
 	echo -e "asdf-$TOOL_NAME: $*"
 	exit 1
