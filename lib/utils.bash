@@ -5,7 +5,25 @@ set -euo pipefail
 GH_REPO="https://github.com/biomejs/biome"
 TOOL_NAME="biome"
 TOOL_TEST="biome --version"
-CLEAN_RELEASE_REGEX='s/^cli\/v//'
+
+# sed requires escaped slashes, while grep does not, but we want to keep the major release prefixes consistent, so we
+# use this to escape the slashes in the prefixes.
+escape_slashes() {
+	local input="$1"
+	echo "$input" | sed 's/\//\\\//g'
+}
+
+MAJOR_1_PREFIX='cli/v'
+MAJOR_2_PREFIX='@biomejs/biome@'
+
+# match either @biomejs/biome@ or cli/v
+RELEASE_PREFIX_REGEX='\(@biomejs/biome@\|cli\/v\)'
+
+# match either @biomejs/biome@X.Y.Z or cli/vX.Y.Z
+RELEASE_REGEX="^\($MAJOR_1_PREFIX\|$MAJOR_2_PREFIX\)[0-9]\+\.[0-9]\+\.[0-9]\+$"
+REPLACE_RELEASE_REGEX="s/^($(escape_slashes $MAJOR_1_PREFIX)|$(escape_slashes $MAJOR_2_PREFIX))//"
+
+echo $MAJOR_1_PREFIX | sed 's/\//\\\//'
 
 fail() {
 	echo -e "asdf-$TOOL_NAME: $*"
@@ -24,11 +42,13 @@ sort_versions() {
 		LC_ALL=C sort -t. -k 1,1 -k 2,2n -k 3,3n -k 4,4n -k 5,5n | awk '{print $2}'
 }
 
+
+# @biomejs/biome@[0-9]\+\.[0-9]\+\.[0-9]\+$
 list_github_tags() {
 	git ls-remote --tags --refs "$GH_REPO" |
 		grep -o 'refs/tags/.*' | cut -d/ -f3- |
-		grep -o "cli/v[0-9]\+\.[0-9]\+\.[0-9]\+$" | # Match semantic versioning tags
-		sed $CLEAN_RELEASE_REGEX
+		grep -o $RELEASE_REGEX | # Match semantic versioning tags
+		sed -E $REPLACE_RELEASE_REGEX
 }
 
 list_all_versions() {
