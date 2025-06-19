@@ -69,11 +69,20 @@ release_file() {
 }
 
 download_release() {
-	local version filename url
+	local version filename url major_prefix
 	version="$1"
 	filename="$2"
 
-	url="$GH_REPO/releases/download/cli/v${version}/biome$(binary_suffix)"
+	if [[ "$version" =~ "^2" ]]; then
+		major_prefix="$MAJOR_2_PREFIX"
+	elif [[ "$version" =~ "^1" ]]; then
+		major_prefix="$MAJOR_1_PREFIX"
+	else
+		fail "Unsupported version: $version"
+		return 1
+	fi
+
+	url="$GH_REPO/releases/download/${major_prefix}${version}/biome$(binary_suffix)"
 
 	echo "* Downloading $TOOL_NAME release $version..."
 	curl "${curl_opts[@]}" -o "$filename" -C - "$url" || fail "Could not download $url"
