@@ -50,11 +50,17 @@ list_all_versions() {
 
 binary_suffix() {
 	local suffix
+	local arch
+	arch="$(uname -m)"
 
 	if [[ "$OSTYPE" == "darwin"* ]]; then
 		suffix="-darwin-arm64"
 	elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
-		suffix="-linux-x64"
+		if [[ "$arch" == "aarch64" || "$arch" == "arm64" ]]; then
+			suffix="-linux-arm64"
+		else
+			suffix="-linux-x64"
+		fi
 	else
 		fail "Unsupported OS: $OSTYPE"
 	fi
