@@ -49,15 +49,22 @@ list_all_versions() {
 }
 
 binary_suffix() {
-	local suffix
+	local os arch suffix
+	arch="$(uname -m)"
 
 	if [[ "$OSTYPE" == "darwin"* ]]; then
-		suffix="-darwin-arm64"
+		os="darwin"
 	elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
-		suffix="-linux-x64"
+		os="linux"
 	else
 		fail "Unsupported OS: $OSTYPE"
 	fi
+
+	case "$arch" in
+	x86_64 | amd64) suffix="-$os-x64" ;;
+	aarch64 | arm64) suffix="-$os-arm64" ;;
+	*) fail "Unsupported architecture: $arch" ;;
+	esac
 
 	echo "$suffix"
 }
