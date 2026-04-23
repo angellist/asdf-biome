@@ -80,6 +80,14 @@ download_release() {
 	version="$1"
 	filename="$2"
 
+	# asdf >= 0.16 passes the literal string "latest" through to download
+	# callbacks instead of resolving it via bin/latest-stable first, so
+	# resolve it here. `list_all_versions` already filters to X.Y.Z tags
+	# (no pre-releases).
+	if [ "$version" = "latest" ]; then
+		version="$(list_all_versions | sort_versions | tail -n1 | xargs echo)"
+	fi
+
 	if [[ $version =~ ^2 ]]; then
 		major_prefix="$MAJOR_2_PREFIX"
 	elif [[ $version =~ ^1 ]]; then
