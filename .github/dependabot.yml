@@ -2,5 +2,9 @@ version: 2
 updates:
   - package-ecosystem: "github-actions"
     directory: "/"
+    # Quarantine newly published versions for 7 days (supply-chain protection).
+    # Security updates are never delayed by cooldown.
+    cooldown:
+      default-days: 7
     schedule:
       interval: "weekly"
